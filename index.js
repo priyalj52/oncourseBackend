@@ -35,8 +35,8 @@ app.use(cors());
 
 let activeTest = {}; // Track the current test state for each user
 let globalScore = 0; // Initialize global score
-let labScore=0;
-let diagnosisScore=0;
+// let labScore=0;
+// let diagnosisScore=0;
 io.on('connection', async (socket) => {
   console.log('New client connected');
   
@@ -50,7 +50,11 @@ io.on('connection', async (socket) => {
         stage: 'test', // 'test' or 'diagnosis'
         attempts: 0,
         maxAttempts: 5,
-        patient: await getPatientById(userId), // Fetch patient details
+        patient: await getPatientById(userId),
+        // globalScore: 0,
+
+        labScore: 0,
+        diagnosisScore: 0, // Fetch patient details
       };
     }
 
@@ -78,24 +82,24 @@ io.on('connection', async (socket) => {
       const score = scoreMatch ? parseInt(scoreMatch[1]) : 0;
       const hintMatch = aiResponse.match(/Hint: (.*)/);
       const hint = hintMatch ? hintMatch[1] : null;
-
-      socket.emit('message', { response: aiResponse, fromUser: false });
+console.log("sc",score)
+      socket.emit('message', { response: aiResponse, fromUser: false ,score:score});
 
       if (userState.stage === 'test' && score === maxScore) {
-      labScore+=score;
+      userState.labScore+=score;
         globalScore += score; 
         userState.stage = 'diagnosis'; // Move to diagnosis stage if test is correct
         userState.attempts = 0; // Reset attempts for diagnosis
         userState.maxAttempts = 5; // Reset max score for diagnosis
-        socket.emit('message', { response: 'Now, please provide your diagnosis.', fromUser: false });
+        socket.emit('message', { response: 'Now, please provide your diagnosis.', fromUser: false});
       } else if (userState.stage === 'diagnosis' && score === maxScore) {
-        diagnosisScore+=score;
+        userState.diagnosisScore+=score;
         globalScore += score; 
         delete activeTest[userId]; // Clear user state after diagnosis
         socket.emit('message', { response: 'Diagnosis is correct. Session complete.', fromUser: false });
         socket.emit('totalScore', { totalScore: globalScore });
-        socket.emit('labScore', { labScore});
-        socket.emit('diagnosisScore', { diagnosisScore});
+        socket.emit('labScore', { labScore: userState.labScore });
+        socket.emit('diagnosisScore', { diagnosisScore: userState.diagnosisScore });
 
       }
       console.log("global score", globalScore);
