@@ -39,7 +39,7 @@ const getPatientCase = async (req, res) => {
     const randomIndex = Math.floor(Math.random() * patients.length);
     const randomCase = patients[randomIndex];
 console.log(randomCase,"randonnnn")
-    const message = `The patient is a ${randomCase.age}-year-old ${randomCase.gender.toLowerCase()} with a history of ${randomCase.history.toLowerCase()}. They present with ${randomCase.symptoms.toLowerCase()}. These symptoms warrant further investigation. Let's go to the lab to diagnose further. What test should we run? What is the differential diagnosis we should be doing?`;
+    const message = `The patient is a ${randomCase.age}-year-old ${randomCase.gender.toLowerCase()} with a history of ${randomCase.history.toLowerCase()}. They present with ${randomCase.symptoms.toLowerCase()}. These symptoms warrant further investigation. Let's go to the lab to diagnose further. What test should we run?`;
 
     res.json({ patient: randomCase, message,userId:randomCase.id });
   } catch (error) {
